@@ -5,10 +5,8 @@ const auth = async(req, res, next)=>{
     try{
         const token = req.header('Authorization').replace('Bearer ', '')
         const decode = jwt.verify(token, process.env.SECRET_KEY)
-        console.log('before if decode')
         if(!decode){
-            console.log('inside decode')
-            throw new Error
+            throw new Error('You are not Authenticated')
         }
 
         const user = await User.findById(decode.id)
@@ -17,7 +15,7 @@ const auth = async(req, res, next)=>{
         })
 
         if(!isValidToken){
-            throw new Error
+            throw new Error('You are not Authenticated')
         }
         
         req.user = user
@@ -25,7 +23,11 @@ const auth = async(req, res, next)=>{
         next()
 
     } catch(e){
-        res.status(401).send('You are not authorized')
+        res.status(401).send({
+            status:401,
+            data:'null',
+            message:e.message
+        })
         
     }
 }

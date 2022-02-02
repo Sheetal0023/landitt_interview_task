@@ -5,10 +5,48 @@ const User = require('../models/users')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const auth = require('../middleware/auth')
+const {isEmpty} = require('lodash')
 
 //Register routes
 router.post('/register', async(req, res)=>{
    try{
+        let errors = {}
+
+        if(!req.body.username){
+            errors.username = 'Username is required'
+        }
+
+        if(!req.body.password){
+            errors.password = 'Password is required'
+        }
+    
+        if(!req.body.phone){
+            errors.phone = 'Phone number is required' 
+                
+        }
+
+        if(!req.body.email){
+            errors.email = 'Email is required'
+        }
+        
+        if(req.body.phone){
+            if(req.body.phone.length !== 10){
+                errors.phone = 'Provide a valid Phone Number'
+            } 
+        }
+        
+
+        if(!isEmpty(errors)) {
+            res.send({
+                status:400,
+                data:'null',
+                message:errors
+            })
+            return
+        }
+        
+
+
         const hashedPassword = await bcrypt.hash(req.body.password, 8)
         
         const user = await new User({
@@ -30,10 +68,13 @@ router.post('/register', async(req, res)=>{
         res.status(201).send('User register successfully')   
    
     } catch(e){
-        res.status(400).send(e.message)
-        
-    }
+        res.status(400).send({
+            status:400,
+            data:'null',
+            message:e.message
+        })
 
+    }
 })
 
 //Login routes
@@ -58,21 +99,35 @@ router.post('/login', async(req, res)=>{
         user.tokens = user.tokens.concat({token:newtoken})
         
 
-        res.send(user)
+        res.send({
+            status:200,
+            data:user
+        })
         await user.save()  
 
     } catch(e){
-        res.status(400).send(e.message)
+        res.status(400).send({
+            status:400,
+            data:'null',
+            message:e.message
+        })
     }
 })
 
 //Profile routes
 router.get('/profile', auth, async(req, res)=>{
     try{
-        res.send(req.user)
+        res.send({
+            status:200,
+            data:req.user
+        })
 
     } catch(e){
-        res.status(401).send('You are not Authenticate')
+        res.status(401).send({
+            status:401,
+            data:null,
+            message:e.message
+        })
     }
           
 })
@@ -88,11 +143,18 @@ router.post('/logout', auth, async(req, res)=>{
         user.tokens = logoutToken
         await user.save()
 
-        console.log(logoutToken)
-        res.send('You are logout')
+        res.send({
+            status:200,
+            data:req.user.email,
+            message:'You are logout'
+        })
 
     } catch(e){
-        res.status(401).send('You are not Authenticate')
+        res.status(401).send({
+            status:401,
+            data:null,
+            message:e.message
+        })
     }
 })
 

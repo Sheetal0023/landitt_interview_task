@@ -6,11 +6,9 @@ const validator = require('validator')
 const userSchema = new mongoose.Schema({
     username:{
         type:String,
-        required:true
     },
     email:{
         type:String,
-        required:true,
         validate(value){
             if(!validator.isEmail(value)){
                 throw new Error('Invalid E-mail')
@@ -19,17 +17,14 @@ const userSchema = new mongoose.Schema({
     },
     password:{
         type:String,
-        required:true
     },
     phone:{
         type:Number,
-        required:true
     },
     tokens:[{
         token:{
             type:String,
-            required:true
-        }
+            }
     }]
 })
 
