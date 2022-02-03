@@ -65,7 +65,11 @@ router.post('/register', async(req, res)=>{
         }
 
         await user.save()
-        res.status(201).send('User register successfully')   
+        res.status(201).send({
+            status:201,
+            data:user,
+            message:'You are register successfully, Please Login'
+        })   
    
     } catch(e){
         res.status(400).send({
@@ -80,6 +84,25 @@ router.post('/register', async(req, res)=>{
 //Login routes
 router.post('/login', async(req, res)=>{
     try{
+
+        let errors = {}
+
+        if(!req.body.email){
+            errors.email = 'Email is required'
+        }
+
+        if(!req.body.password){
+            errors.password = 'Password is required'
+        }
+
+        if(!isEmpty(errors)) {
+            res.send({
+                status:400,
+                data:'null',
+                message:errors
+            })
+            return
+        }
 
         const user = await User.findOne({
             email:req.body.email
