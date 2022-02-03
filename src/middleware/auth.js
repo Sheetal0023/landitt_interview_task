@@ -3,7 +3,13 @@ const User = require('../models/users')
 
 const auth = async(req, res, next)=>{
     try{
+        if(!req.header('Authorization')){
+            throw new Error('You are not Authenticated')
+        }
         const token = req.header('Authorization').replace('Bearer ', '')
+        if(!token){
+            throw new Error('You are not Authenticated')
+        }
         const decode = jwt.verify(token, process.env.SECRET_KEY)
         if(!decode){
             throw new Error('You are not Authenticated')
